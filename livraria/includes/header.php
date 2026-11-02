@@ -10,6 +10,7 @@ $menu = [
     'livros' => ['produtos.php', 'Livros'],
     'categorias' => ['categorias.php', 'Categorias'],
     'cadastro' => ['cadastro.php', 'Cadastro'],
+    'login' => ['login.php', 'Login'],
 ];
 ?>
 <!DOCTYPE html>
