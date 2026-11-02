@@ -33,3 +33,10 @@ npm run build
 - `assets/`: CSS e JavaScript compilado.
 
 Fluxo: MySQL/MariaDB (views e procedures) → PHP (PDO/CALL) → JSON → TypeScript (`fetch`, cálculos) → DOM.
+
+## Cadastro de usuário
+
+1. Execute `database/usuarios_cadastro.sql` no DBeaver (adiciona as colunas `cpf` e `senha` em `usuarios`, sem apagar dados).
+2. Acesse `cadastro.php`.
+
+Validações de e-mail, CPF e nível da senha existem no front (`src/nucleo/validadores.ts`) e no servidor (`api/usuarios.php`). A senha é gravada com `password_hash`.

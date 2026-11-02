@@ -9,6 +9,7 @@ $menu = [
     'vendas' => ['vendas.php', 'Vendas'],
     'livros' => ['produtos.php', 'Livros'],
     'categorias' => ['categorias.php', 'Categorias'],
+    'cadastro' => ['cadastro.php', 'Cadastro'],
 ];
 ?>
 <!DOCTYPE html>

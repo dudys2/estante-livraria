@@ -1,0 +1,6 @@
+USE biblioteca;
+
+ALTER TABLE usuarios
+    ADD COLUMN IF NOT EXISTS cpf CHAR(11) NULL,
+    ADD COLUMN IF NOT EXISTS senha VARCHAR(255) NULL,
+    ADD UNIQUE INDEX IF NOT EXISTS uq_usuarios_cpf (cpf);
