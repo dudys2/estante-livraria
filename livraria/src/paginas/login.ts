@@ -1,17 +1,10 @@
 
-import { requisitar } from '../nucleo/api.js';
 import { obter } from '../nucleo/dom.js';
-import type { RespostaMensagem } from '../nucleo/tipos.js';
 import { mostrarAviso, tratarErro } from '../nucleo/ui.js';
 import { validarEmail } from '../nucleo/validadores.js';
+import { RepositorioUsuarios } from '../repositorios/RepositorioUsuarios.js';
 
-interface RespostaLogin extends RespostaMensagem {
-    usuario: {
-        id: number;
-        nome: string;
-        email: string;
-    };
-}
+const repositorio = new RepositorioUsuarios();
 
 const formulario = obter('formularioLogin', HTMLFormElement);
 const campoEmail = obter('campoEmailLogin', HTMLInputElement);
@@ -65,16 +58,12 @@ if (formulario && campoEmail && campoSenha && botaoEntrar) {
         botaoEntrar.textContent = 'Entrando...';
 
         try {
-            const resposta = await requisitar<RespostaLogin>(
-                'api/login.php',
-                'POST',
-                {
-                    email: campoEmail.value.trim(),
-                    senha: campoSenha.value,
-                }
+            const usuario = await repositorio.autenticar(
+                campoEmail.value.trim(),
+                campoSenha.value
             );
 
-            mostrarAviso(resposta.mensagem);
+            mostrarAviso(`Bem-vindo, ${usuario.nome}.`);
 
             // Após o login, vai para o painel.
             window.setTimeout(() => {

@@ -1,7 +1,8 @@
-import { requisitar } from '../nucleo/api.js';
 import { obter } from '../nucleo/dom.js';
 import { mostrarAviso, tratarErro } from '../nucleo/ui.js';
 import { validarEmail } from '../nucleo/validadores.js';
+import { RepositorioUsuarios } from '../repositorios/RepositorioUsuarios.js';
+const repositorio = new RepositorioUsuarios();
 const formulario = obter('formularioLogin', HTMLFormElement);
 const campoEmail = obter('campoEmailLogin', HTMLInputElement);
 const campoSenha = obter('campoSenhaLogin', HTMLInputElement);
@@ -32,11 +33,8 @@ if (formulario && campoEmail && campoSenha && botaoEntrar) {
         botaoEntrar.disabled = true;
         botaoEntrar.textContent = 'Entrando...';
         try {
-            const resposta = await requisitar('api/login.php', 'POST', {
-                email: campoEmail.value.trim(),
-                senha: campoSenha.value,
-            });
-            mostrarAviso(resposta.mensagem);
+            const usuario = await repositorio.autenticar(campoEmail.value.trim(), campoSenha.value);
+            mostrarAviso(`Bem-vindo, ${usuario.nome}.`);
             // Após o login, vai para o painel.
             window.setTimeout(() => {
                 window.location.assign('index.php');

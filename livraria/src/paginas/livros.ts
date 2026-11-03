@@ -1,7 +1,6 @@
-import { requisitar } from '../nucleo/api.js';
+import { Livro } from '../entidades/Livro.js';
 import { definirTexto, obter } from '../nucleo/dom.js';
 import { escapar, formatarMoeda } from '../nucleo/formatadores.js';
-import type { Categoria, Produto, RespostaLista, RespostaMensagem, RespostaPaginada } from '../nucleo/tipos.js';
 import {
     abrirModal,
     atrasar,
@@ -15,9 +14,13 @@ import {
     renderizarPaginacao,
     tratarErro,
 } from '../nucleo/ui.js';
+import { RepositorioCategorias } from '../repositorios/RepositorioCategorias.js';
+import { RepositorioLivros } from '../repositorios/RepositorioLivros.js';
 
-const ENDPOINT = 'api/produtos.php';
 const POR_PAGINA = 8;
+
+const repositorio = new RepositorioLivros();
+const repositorioCategorias = new RepositorioCategorias();
 
 const corpoTabela = obter('tabela', HTMLTableSectionElement);
 const navegacao = obter('paginacao', HTMLElement);
@@ -34,26 +37,26 @@ const campoPreco = obter('campoPreco', HTMLInputElement);
 const campoEstoque = obter('campoEstoque', HTMLInputElement);
 
 let pagina = 1;
-let produtos: Produto[] = [];
+let livros: Livro[] = [];
 
-function linhaProduto(produto: Produto): string {
+function linhaLivro(livro: Livro): string {
     return `<tr>
         <td>
-            <div class="fw-medium">${escapar(produto.titulo)}</div>
-            <div class="texto-suave">${escapar(produto.autor)}</div>
+            <div class="fw-medium">${escapar(livro.titulo)}</div>
+            <div class="texto-suave">${escapar(livro.autor)}</div>
         </td>
-        <td>${escapar(produto.categoria)}</td>
-        <td class="text-end">${formatarMoeda(produto.preco)}</td>
-        <td class="text-center"><span class="selo selo-${produto.status_estoque}">${produto.estoque}</span></td>
-        <td class="text-center">${produto.unidades_vendidas}</td>
-        <td class="text-end acoes">${botoesAcao(produto.id)}</td>
+        <td>${escapar(livro.categoria)}</td>
+        <td class="text-end">${formatarMoeda(livro.preco)}</td>
+        <td class="text-center"><span class="selo selo-${livro.statusEstoque}">${livro.estoque}</span></td>
+        <td class="text-center">${livro.unidadesVendidas}</td>
+        <td class="text-end acoes">${botoesAcao(livro.id)}</td>
     </tr>`;
 }
 
 function renderizar(total: number): void {
     if (corpoTabela) {
         corpoTabela.innerHTML =
-            produtos.length === 0 ? linhaVazia(6, 'Nenhum livro encontrado.') : produtos.map(linhaProduto).join('');
+            livros.length === 0 ? linhaVazia(6, 'Nenhum livro encontrado.') : livros.map(linhaLivro).join('');
     }
     if (navegacao) {
         renderizarPaginacao(navegacao, pagina, total, POR_PAGINA, (destino) => {
@@ -65,23 +68,21 @@ function renderizar(total: number): void {
 }
 
 async function carregar(): Promise<void> {
-    const parametros = new URLSearchParams({
-        busca: filtroBusca?.value.trim() ?? '',
-        categoria_id: filtroCategoria?.value ?? '0',
-        pagina: String(pagina),
-        por_pagina: String(POR_PAGINA),
-    });
-
     try {
-        const resposta = await requisitar<RespostaPaginada<Produto>>(`${ENDPOINT}?${parametros}`);
+        const resultado = await repositorio.listar({
+            busca: filtroBusca?.value.trim() ?? '',
+            categoriaId: Number(filtroCategoria?.value ?? 0),
+            pagina,
+            porPagina: POR_PAGINA,
+        });
 
-        if (resposta.dados.length === 0 && pagina > 1) {
+        if (resultado.itens.length === 0 && pagina > 1) {
             pagina -= 1;
             await carregar();
             return;
         }
-        produtos = resposta.dados;
-        renderizar(resposta.total);
+        livros = resultado.itens;
+        renderizar(resultado.total);
     } catch (erro) {
         tratarErro(erro);
     }
@@ -89,8 +90,8 @@ async function carregar(): Promise<void> {
 
 async function carregarCategorias(): Promise<void> {
     try {
-        const resposta = await requisitar<RespostaLista<Categoria>>('api/categorias.php');
-        const opcoes = resposta.dados.map((categoria) => ({ valor: String(categoria.id), texto: categoria.nome }));
+        const categorias = await repositorioCategorias.listar();
+        const opcoes = categorias.map((categoria) => ({ valor: String(categoria.id), texto: categoria.rotulo() }));
 
         if (filtroCategoria) {
             preencherSelect(filtroCategoria, [{ valor: '0', texto: 'Todas as categorias' }, ...opcoes]);
@@ -103,20 +104,20 @@ async function carregarCategorias(): Promise<void> {
     }
 }
 
-function abrirFormulario(produto?: Produto): void {
+function abrirFormulario(livro?: Livro): void {
     if (!formulario || !tituloModal || !campoId || !campoTitulo || !campoAutor || !campoCategoria || !campoPreco || !campoEstoque) {
         return;
     }
 
     formulario.reset();
     formulario.classList.remove('was-validated');
-    campoId.value = produto ? String(produto.id) : '';
-    campoTitulo.value = produto ? produto.titulo : '';
-    campoAutor.value = produto ? produto.autor : '';
-    campoCategoria.value = produto ? String(produto.categoria_id) : '';
-    campoPreco.value = produto ? String(produto.preco) : '';
-    campoEstoque.value = produto ? String(produto.estoque) : '';
-    tituloModal.textContent = produto ? 'Editar livro' : 'Novo livro';
+    campoId.value = livro ? String(livro.id) : '';
+    campoTitulo.value = livro ? livro.titulo : '';
+    campoAutor.value = livro ? livro.autor : '';
+    campoCategoria.value = livro ? String(livro.categoriaId) : '';
+    campoPreco.value = livro ? String(livro.preco) : '';
+    campoEstoque.value = livro ? String(livro.estoque) : '';
+    tituloModal.textContent = livro ? 'Editar livro' : 'Novo livro';
     abrirModal('modalFormulario');
 }
 
@@ -130,23 +131,19 @@ async function salvar(evento: Event): Promise<void> {
         return;
     }
 
-    const id = Number(campoId.value);
-    const corpo = {
-        titulo: campoTitulo.value.trim(),
-        autor: campoAutor.value.trim(),
-        categoria_id: Number(campoCategoria.value),
-        preco: Number(campoPreco.value),
-        estoque: Number(campoEstoque.value),
-    };
-
     try {
-        const resposta = await requisitar<RespostaMensagem>(
-            id > 0 ? `${ENDPOINT}?id=${id}` : ENDPOINT,
-            id > 0 ? 'PUT' : 'POST',
-            corpo,
-        );
+        const livro = new Livro({
+            id: Number(campoId.value),
+            titulo: campoTitulo.value,
+            autor: campoAutor.value,
+            categoriaId: Number(campoCategoria.value),
+            preco: Number(campoPreco.value),
+            estoque: Number(campoEstoque.value),
+        });
+        const mensagem = await repositorio.salvar(livro);
+
         fecharModal('modalFormulario');
-        mostrarAviso(resposta.mensagem);
+        mostrarAviso(mensagem);
         await carregar();
     } catch (erro) {
         tratarErro(erro);
@@ -154,14 +151,13 @@ async function salvar(evento: Event): Promise<void> {
 }
 
 async function excluir(id: number): Promise<void> {
-    const produto = produtos.find((item) => item.id === id);
-    if (!produto || !(await confirmar(`Excluir o livro "${produto.titulo}"?`))) {
+    const livro = livros.find((item) => item.id === id);
+    if (!livro || !(await confirmar(`Excluir "${livro.rotulo()}"?`))) {
         return;
     }
 
     try {
-        const resposta = await requisitar<RespostaMensagem>(`${ENDPOINT}?id=${id}`, 'DELETE');
-        mostrarAviso(resposta.mensagem);
+        mostrarAviso(await repositorio.excluir(id));
         await carregar();
     } catch (erro) {
         tratarErro(erro);
@@ -181,7 +177,7 @@ formulario?.addEventListener('submit', (evento) => void salvar(evento));
 if (corpoTabela) {
     delegarAcoes(corpoTabela, (acao, id) => {
         if (acao === 'editar') {
-            abrirFormulario(produtos.find((item) => item.id === id));
+            abrirFormulario(livros.find((item) => item.id === id));
         } else if (acao === 'excluir') {
             void excluir(id);
         }

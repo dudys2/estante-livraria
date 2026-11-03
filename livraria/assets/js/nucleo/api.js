@@ -1,11 +1,5 @@
+import { ErroApi } from '../erros/ErroApi.js';
 const MENSAGEM_PADRAO = 'Não foi possível concluir a operação.';
-export class ErroApi extends Error {
-    constructor(mensagem, status = 0) {
-        super(mensagem);
-        this.name = 'ErroApi';
-        this.status = status;
-    }
-}
 function extrairMensagem(conteudo) {
     if (typeof conteudo === 'object' && conteudo !== null && 'mensagem' in conteudo) {
         const { mensagem } = conteudo;

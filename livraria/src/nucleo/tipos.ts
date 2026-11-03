@@ -1,12 +1,12 @@
 export type StatusEstoque = 'critico' | 'baixo' | 'normal';
 
-export interface Categoria {
+export interface CategoriaDto {
     id: number;
     nome: string;
     total_livros: number;
 }
 
-export interface Produto {
+export interface ProdutoDto {
     id: number;
     titulo: string;
     autor: string;
@@ -19,7 +19,7 @@ export interface Produto {
     receita: number;
 }
 
-export interface Venda {
+export interface VendaDto {
     venda_id: number;
     data_venda: string;
     produto_id: number;
@@ -42,13 +42,23 @@ export interface RespostaPaginada<T> extends RespostaLista<T> {
 }
 
 export interface RespostaDashboard {
-    vendas: Venda[];
-    produtos: Produto[];
-    categorias: Categoria[];
+    vendas: VendaDto[];
+    produtos: ProdutoDto[];
+    categorias: CategoriaDto[];
 }
 
 export interface RespostaMensagem {
     sucesso: boolean;
     mensagem: string;
     id?: number;
+}
+
+export interface UsuarioDto {
+    id: number;
+    nome: string;
+    email: string;
+}
+
+export interface RespostaLogin extends RespostaMensagem {
+    usuario: UsuarioDto;
 }

@@ -1,4 +1,6 @@
-import { ErroApi, mensagemDoErro } from './api.js';
+import { ErroApi } from '../erros/ErroApi.js';
+import { ErroValidacao } from '../erros/ErroValidacao.js';
+import { mensagemDoErro } from './api.js';
 import { obter } from './dom.js';
 import { escapar } from './formatadores.js';
 export function mostrarAviso(mensagem, tipo = 'success') {
@@ -20,8 +22,8 @@ export function mostrarAviso(mensagem, tipo = 'success') {
     window.setTimeout(() => aviso.remove(), 6000);
 }
 export function tratarErro(erro) {
-    const regraDeNegocio = erro instanceof ErroApi && erro.status === 409;
-    mostrarAviso(mensagemDoErro(erro), regraDeNegocio ? 'warning' : 'danger');
+    const aviso = erro instanceof ErroValidacao || (erro instanceof ErroApi && erro.violaRegraDeNegocio);
+    mostrarAviso(mensagemDoErro(erro), aviso ? 'warning' : 'danger');
 }
 export function abrirModal(id) {
     const elemento = document.getElementById(id);

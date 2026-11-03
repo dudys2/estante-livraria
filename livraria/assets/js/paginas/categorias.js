@@ -1,8 +1,9 @@
-import { requisitar } from '../nucleo/api.js';
+import { Categoria } from '../entidades/Categoria.js';
 import { obter } from '../nucleo/dom.js';
 import { escapar } from '../nucleo/formatadores.js';
 import { abrirModal, botoesAcao, confirmar, delegarAcoes, fecharModal, linhaVazia, mostrarAviso, tratarErro, } from '../nucleo/ui.js';
-const ENDPOINT = 'api/categorias.php';
+import { RepositorioCategorias } from '../repositorios/RepositorioCategorias.js';
+const repositorio = new RepositorioCategorias();
 const corpoTabela = obter('tabela', HTMLTableSectionElement);
 const formulario = obter('formulario', HTMLFormElement);
 const campoId = obter('campoId', HTMLInputElement);
@@ -13,7 +14,7 @@ let categorias = [];
 function linhaCategoria(categoria) {
     return `<tr>
         <td class="fw-medium">${escapar(categoria.nome)}</td>
-        <td class="text-center">${categoria.total_livros}</td>
+        <td class="text-center">${categoria.totalLivros}</td>
         <td class="text-end acoes">${botoesAcao(categoria.id)}</td>
     </tr>`;
 }
@@ -28,8 +29,7 @@ function renderizar() {
 }
 async function carregar() {
     try {
-        const resposta = await requisitar(ENDPOINT);
-        categorias = resposta.dados;
+        categorias = await repositorio.listar();
         renderizar();
     }
     catch (erro) {
@@ -56,11 +56,11 @@ async function salvar(evento) {
         formulario.classList.add('was-validated');
         return;
     }
-    const id = Number(campoId.value);
     try {
-        const resposta = await requisitar(id > 0 ? `${ENDPOINT}?id=${id}` : ENDPOINT, id > 0 ? 'PUT' : 'POST', { nome: campoNome.value.trim() });
+        const categoria = new Categoria({ id: Number(campoId.value), nome: campoNome.value });
+        const mensagem = await repositorio.salvar(categoria);
         fecharModal('modalFormulario');
-        mostrarAviso(resposta.mensagem);
+        mostrarAviso(mensagem);
         await carregar();
     }
     catch (erro) {
@@ -69,12 +69,11 @@ async function salvar(evento) {
 }
 async function excluir(id) {
     const categoria = categorias.find((item) => item.id === id);
-    if (!categoria || !(await confirmar(`Excluir a categoria "${categoria.nome}"?`))) {
+    if (!categoria || !(await confirmar(`Excluir "${categoria.rotulo()}"?`))) {
         return;
     }
     try {
-        const resposta = await requisitar(`${ENDPOINT}?id=${id}`, 'DELETE');
-        mostrarAviso(resposta.mensagem);
+        mostrarAviso(await repositorio.excluir(id));
         await carregar();
     }
     catch (erro) {

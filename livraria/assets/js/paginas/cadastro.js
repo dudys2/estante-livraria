@@ -1,7 +1,9 @@
-import { requisitar } from '../nucleo/api.js';
+import { Usuario } from '../entidades/Usuario.js';
 import { obter } from '../nucleo/dom.js';
 import { mostrarAviso, tratarErro } from '../nucleo/ui.js';
 import { formatarCpf, nivelSenha, validarCpf, validarEmail } from '../nucleo/validadores.js';
+import { RepositorioUsuarios } from '../repositorios/RepositorioUsuarios.js';
+const repositorio = new RepositorioUsuarios();
 const formulario = obter('formulario', HTMLFormElement);
 const campoNome = obter('campoNome', HTMLInputElement);
 const campoEmail = obter('campoEmail', HTMLInputElement);
@@ -51,13 +53,13 @@ if (formulario &&
             botaoCadastrar.textContent = 'Cadastrando...';
         }
         try {
-            const resposta = await requisitar('api/usuarios.php', 'POST', {
-                nome: campoNome.value.trim(),
-                email: campoEmail.value.trim(),
-                cpf: campoCpf.value.replace(/\D/g, ''),
-                senha: campoSenha.value
+            const usuario = new Usuario({
+                nome: campoNome.value,
+                email: campoEmail.value,
+                cpf: campoCpf.value
             });
-            mostrarAviso(resposta.mensagem);
+            const mensagem = await repositorio.cadastrar(usuario, campoSenha.value);
+            mostrarAviso(mensagem);
             window.setTimeout(() => {
                 window.location.assign('login.php?cadastro=sucesso');
             }, 800);

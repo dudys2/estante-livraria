@@ -1,7 +1,6 @@
-import { requisitar } from '../nucleo/api.js';
+import { Categoria } from '../entidades/Categoria.js';
 import { obter } from '../nucleo/dom.js';
 import { escapar } from '../nucleo/formatadores.js';
-import type { Categoria, RespostaLista, RespostaMensagem } from '../nucleo/tipos.js';
 import {
     abrirModal,
     botoesAcao,
@@ -12,8 +11,9 @@ import {
     mostrarAviso,
     tratarErro,
 } from '../nucleo/ui.js';
+import { RepositorioCategorias } from '../repositorios/RepositorioCategorias.js';
 
-const ENDPOINT = 'api/categorias.php';
+const repositorio = new RepositorioCategorias();
 
 const corpoTabela = obter('tabela', HTMLTableSectionElement);
 const formulario = obter('formulario', HTMLFormElement);
@@ -27,7 +27,7 @@ let categorias: Categoria[] = [];
 function linhaCategoria(categoria: Categoria): string {
     return `<tr>
         <td class="fw-medium">${escapar(categoria.nome)}</td>
-        <td class="text-center">${categoria.total_livros}</td>
+        <td class="text-center">${categoria.totalLivros}</td>
         <td class="text-end acoes">${botoesAcao(categoria.id)}</td>
     </tr>`;
 }
@@ -44,8 +44,7 @@ function renderizar(): void {
 
 async function carregar(): Promise<void> {
     try {
-        const resposta = await requisitar<RespostaLista<Categoria>>(ENDPOINT);
-        categorias = resposta.dados;
+        categorias = await repositorio.listar();
         renderizar();
     } catch (erro) {
         tratarErro(erro);
@@ -75,16 +74,12 @@ async function salvar(evento: Event): Promise<void> {
         return;
     }
 
-    const id = Number(campoId.value);
-
     try {
-        const resposta = await requisitar<RespostaMensagem>(
-            id > 0 ? `${ENDPOINT}?id=${id}` : ENDPOINT,
-            id > 0 ? 'PUT' : 'POST',
-            { nome: campoNome.value.trim() },
-        );
+        const categoria = new Categoria({ id: Number(campoId.value), nome: campoNome.value });
+        const mensagem = await repositorio.salvar(categoria);
+
         fecharModal('modalFormulario');
-        mostrarAviso(resposta.mensagem);
+        mostrarAviso(mensagem);
         await carregar();
     } catch (erro) {
         tratarErro(erro);
@@ -93,13 +88,12 @@ async function salvar(evento: Event): Promise<void> {
 
 async function excluir(id: number): Promise<void> {
     const categoria = categorias.find((item) => item.id === id);
-    if (!categoria || !(await confirmar(`Excluir a categoria "${categoria.nome}"?`))) {
+    if (!categoria || !(await confirmar(`Excluir "${categoria.rotulo()}"?`))) {
         return;
     }
 
     try {
-        const resposta = await requisitar<RespostaMensagem>(`${ENDPOINT}?id=${id}`, 'DELETE');
-        mostrarAviso(resposta.mensagem);
+        mostrarAviso(await repositorio.excluir(id));
         await carregar();
     } catch (erro) {
         tratarErro(erro);

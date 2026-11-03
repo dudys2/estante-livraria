@@ -1,6 +1,5 @@
-import { requisitar } from '../nucleo/api.js';
+import { Usuario } from '../entidades/Usuario.js';
 import { obter } from '../nucleo/dom.js';
-import type { RespostaMensagem } from '../nucleo/tipos.js';
 import { mostrarAviso, tratarErro } from '../nucleo/ui.js';
 import {
     formatarCpf,
@@ -8,6 +7,9 @@ import {
     validarCpf,
     validarEmail
 } from '../nucleo/validadores.js';
+import { RepositorioUsuarios } from '../repositorios/RepositorioUsuarios.js';
+
+const repositorio = new RepositorioUsuarios();
 
 const formulario = obter('formulario', HTMLFormElement);
 const campoNome = obter('campoNome', HTMLInputElement);
@@ -91,18 +93,14 @@ if (
         }
 
         try {
-            const resposta = await requisitar<RespostaMensagem>(
-                'api/usuarios.php',
-                'POST',
-                {
-                    nome: campoNome.value.trim(),
-                    email: campoEmail.value.trim(),
-                    cpf: campoCpf.value.replace(/\D/g, ''),
-                    senha: campoSenha.value
-                }
-            );
+            const usuario = new Usuario({
+                nome: campoNome.value,
+                email: campoEmail.value,
+                cpf: campoCpf.value
+            });
+            const mensagem = await repositorio.cadastrar(usuario, campoSenha.value);
 
-            mostrarAviso(resposta.mensagem);
+            mostrarAviso(mensagem);
 
             window.setTimeout(() => {
                 window.location.assign('login.php?cadastro=sucesso');

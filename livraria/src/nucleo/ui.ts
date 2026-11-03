@@ -1,4 +1,6 @@
-import { ErroApi, mensagemDoErro } from './api.js';
+import { ErroApi } from '../erros/ErroApi.js';
+import { ErroValidacao } from '../erros/ErroValidacao.js';
+import { mensagemDoErro } from './api.js';
 import { obter } from './dom.js';
 import { escapar } from './formatadores.js';
 
@@ -32,8 +34,8 @@ export function mostrarAviso(mensagem: string, tipo: TipoAviso = 'success'): voi
 }
 
 export function tratarErro(erro: unknown): void {
-    const regraDeNegocio = erro instanceof ErroApi && erro.status === 409;
-    mostrarAviso(mensagemDoErro(erro), regraDeNegocio ? 'warning' : 'danger');
+    const aviso = erro instanceof ErroValidacao || (erro instanceof ErroApi && erro.violaRegraDeNegocio);
+    mostrarAviso(mensagemDoErro(erro), aviso ? 'warning' : 'danger');
 }
 
 export function abrirModal(id: string): void {

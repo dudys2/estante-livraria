@@ -1,9 +1,14 @@
-import { requisitar } from '../nucleo/api.js';
+import { Venda } from '../entidades/Venda.js';
 import { definirTexto, obter } from '../nucleo/dom.js';
 import { escapar, formatarData, formatarMoeda, hojeIso } from '../nucleo/formatadores.js';
 import { abrirModal, atrasar, botoesAcao, confirmar, delegarAcoes, fecharModal, linhaVazia, mostrarAviso, preencherSelect, renderizarPaginacao, tratarErro, } from '../nucleo/ui.js';
-const ENDPOINT = 'api/vendas.php';
+import { RepositorioCategorias } from '../repositorios/RepositorioCategorias.js';
+import { RepositorioLivros } from '../repositorios/RepositorioLivros.js';
+import { RepositorioVendas } from '../repositorios/RepositorioVendas.js';
 const POR_PAGINA = 8;
+const repositorio = new RepositorioVendas();
+const repositorioLivros = new RepositorioLivros();
+const repositorioCategorias = new RepositorioCategorias();
 const corpoTabela = obter('tabela', HTMLTableSectionElement);
 const navegacao = obter('paginacao', HTMLElement);
 const filtroBusca = obter('filtroBusca', HTMLInputElement);
@@ -22,13 +27,13 @@ let vendas = [];
 let catalogo = [];
 function linhaVenda(venda) {
     return `<tr>
-        <td>${formatarData(venda.data_venda)}</td>
+        <td>${formatarData(venda.dataVenda)}</td>
         <td class="fw-medium">${escapar(venda.produto)}</td>
         <td>${escapar(venda.categoria)}</td>
         <td class="text-center">${venda.quantidade}</td>
-        <td class="text-end">${formatarMoeda(venda.valor_unitario)}</td>
+        <td class="text-end">${formatarMoeda(venda.valorUnitario)}</td>
         <td class="text-end fw-medium">${formatarMoeda(venda.total)}</td>
-        <td class="text-end acoes">${botoesAcao(venda.venda_id)}</td>
+        <td class="text-end acoes">${botoesAcao(venda.id)}</td>
     </tr>`;
 }
 function renderizar(total) {
@@ -45,23 +50,22 @@ function renderizar(total) {
     definirTexto('resumo', `${total} ${total === 1 ? 'venda encontrada' : 'vendas encontradas'}`);
 }
 async function carregar() {
-    const parametros = new URLSearchParams({
-        busca: filtroBusca?.value.trim() ?? '',
-        categoria_id: filtroCategoria?.value ?? '0',
-        inicio: filtroInicio?.value ?? '',
-        fim: filtroFim?.value ?? '',
-        pagina: String(pagina),
-        por_pagina: String(POR_PAGINA),
-    });
     try {
-        const resposta = await requisitar(`${ENDPOINT}?${parametros}`);
-        if (resposta.dados.length === 0 && pagina > 1) {
+        const resultado = await repositorio.listar({
+            busca: filtroBusca?.value.trim() ?? '',
+            categoriaId: Number(filtroCategoria?.value ?? 0),
+            inicio: filtroInicio?.value ?? '',
+            fim: filtroFim?.value ?? '',
+            pagina,
+            porPagina: POR_PAGINA,
+        });
+        if (resultado.itens.length === 0 && pagina > 1) {
             pagina -= 1;
             await carregar();
             return;
         }
-        vendas = resposta.dados;
-        renderizar(resposta.total);
+        vendas = resultado.itens;
+        renderizar(resultado.total);
     }
     catch (erro) {
         tratarErro(erro);
@@ -70,20 +74,20 @@ async function carregar() {
 async function carregarApoio() {
     try {
         const [categorias, livros] = await Promise.all([
-            requisitar('api/categorias.php'),
-            requisitar('api/produtos.php?por_pagina=1000'),
+            repositorioCategorias.listar(),
+            repositorioLivros.listar({ busca: '', categoriaId: 0, pagina: 1, porPagina: 1000 }),
         ]);
-        catalogo = livros.dados;
+        catalogo = livros.itens;
         if (filtroCategoria) {
             preencherSelect(filtroCategoria, [
                 { valor: '0', texto: 'Todas as categorias' },
-                ...categorias.dados.map((categoria) => ({ valor: String(categoria.id), texto: categoria.nome })),
+                ...categorias.map((categoria) => ({ valor: String(categoria.id), texto: categoria.rotulo() })),
             ]);
         }
         if (campoProduto) {
             preencherSelect(campoProduto, [
                 { valor: '', texto: 'Selecione' },
-                ...catalogo.map((livro) => ({ valor: String(livro.id), texto: livro.titulo })),
+                ...catalogo.map((livro) => ({ valor: String(livro.id), texto: livro.rotulo() })),
             ]);
         }
     }
@@ -101,10 +105,10 @@ function abrirFormulario(venda) {
     }
     formulario.reset();
     formulario.classList.remove('was-validated');
-    campoId.value = venda ? String(venda.venda_id) : '';
-    campoProduto.value = venda ? String(venda.produto_id) : '';
+    campoId.value = venda ? String(venda.id) : '';
+    campoProduto.value = venda ? String(venda.produtoId) : '';
     campoQuantidade.value = venda ? String(venda.quantidade) : '';
-    campoData.value = venda ? venda.data_venda : hojeIso();
+    campoData.value = venda ? venda.dataVenda : hojeIso();
     tituloModal.textContent = venda ? 'Editar venda' : 'Nova venda';
     atualizarInfoProduto();
     abrirModal('modalFormulario');
@@ -118,16 +122,16 @@ async function salvar(evento) {
         formulario.classList.add('was-validated');
         return;
     }
-    const id = Number(campoId.value);
-    const corpo = {
-        produto_id: Number(campoProduto.value),
-        quantidade: Number(campoQuantidade.value),
-        data_venda: campoData.value,
-    };
     try {
-        const resposta = await requisitar(id > 0 ? `${ENDPOINT}?id=${id}` : ENDPOINT, id > 0 ? 'PUT' : 'POST', corpo);
+        const venda = new Venda({
+            id: Number(campoId.value),
+            produtoId: Number(campoProduto.value),
+            quantidade: Number(campoQuantidade.value),
+            dataVenda: campoData.value,
+        });
+        const mensagem = await repositorio.salvar(venda);
         fecharModal('modalFormulario');
-        mostrarAviso(resposta.mensagem);
+        mostrarAviso(mensagem);
         await Promise.all([carregar(), carregarApoio()]);
     }
     catch (erro) {
@@ -135,13 +139,12 @@ async function salvar(evento) {
     }
 }
 async function excluir(id) {
-    const venda = vendas.find((item) => item.venda_id === id);
-    if (!venda || !(await confirmar(`Excluir a venda de "${venda.produto}"? O estoque será devolvido.`))) {
+    const venda = vendas.find((item) => item.id === id);
+    if (!venda || !(await confirmar(`Excluir a ${venda.rotulo()}? O estoque será devolvido.`))) {
         return;
     }
     try {
-        const resposta = await requisitar(`${ENDPOINT}?id=${id}`, 'DELETE');
-        mostrarAviso(resposta.mensagem);
+        mostrarAviso(await repositorio.excluir(id));
         await Promise.all([carregar(), carregarApoio()]);
     }
     catch (erro) {
@@ -160,7 +163,7 @@ formulario?.addEventListener('submit', (evento) => void salvar(evento));
 if (corpoTabela) {
     delegarAcoes(corpoTabela, (acao, id) => {
         if (acao === 'editar') {
-            abrirFormulario(vendas.find((item) => item.venda_id === id));
+            abrirFormulario(vendas.find((item) => item.id === id));
         }
         else if (acao === 'excluir') {
             void excluir(id);
