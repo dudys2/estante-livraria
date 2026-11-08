@@ -1,4 +1,5 @@
 import { ErroApi } from '../erros/ErroApi.js';
+import { Sessao } from './sessao.js';
 
 type Metodo = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
@@ -21,10 +22,17 @@ export function mensagemDoErro(erro: unknown): string {
 export async function requisitar<T>(url: string, metodo: Metodo = 'GET', corpo?: object): Promise<T> {
     let resposta: Response;
 
+    const token = Sessao.token();
+    const cabecalhos: Record<string, string> = { 'Content-Type': 'application/json' };
+
+    if (token !== null) {
+        cabecalhos['Authorization'] = `Bearer ${token}`;
+    }
+
     try {
         resposta = await fetch(url, {
             method: metodo,
-            headers: { 'Content-Type': 'application/json' },
+            headers: cabecalhos,
             body: corpo === undefined ? undefined : JSON.stringify(corpo),
         });
     } catch {
@@ -32,6 +40,10 @@ export async function requisitar<T>(url: string, metodo: Metodo = 'GET', corpo?:
     }
 
     const conteudo: unknown = await resposta.json().catch(() => null);
+
+    if (resposta.status === 401 && token !== null) {
+        Sessao.encerrar();
+    }
 
     if (!resposta.ok) {
         throw new ErroApi(extrairMensagem(conteudo), resposta.status);

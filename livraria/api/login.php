@@ -1,4 +1,3 @@
-
 <?php
 declare(strict_types=1);
 
@@ -6,14 +5,6 @@ require __DIR__ . '/bootstrap.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     falhar('Método não permitido.', 405);
-}
-
-// Inicia a sessão do usuário.
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start([
-        'cookie_httponly' => true,
-        'cookie_samesite' => 'Lax',
-    ]);
 }
 
 $dados = entrada();
@@ -39,22 +30,20 @@ if (
     falhar('E-mail ou senha incorretos.', 401);
 }
 
-$usuario = $usuarios[0];
+$usuario = [
+    'id' => (int) $usuarios[0]['id'],
+    'nome' => (string) $usuarios[0]['nome'],
+    'email' => (string) $usuarios[0]['email'],
+];
 
-// Renova o identificador da sessão.
-session_regenerate_id(true);
-
-// Guarda os dados do usuário na sessão.
-$_SESSION['usuario_id'] = (int) $usuario['id'];
-$_SESSION['usuario_nome'] = (string) $usuario['nome'];
-$_SESSION['usuario_email'] = (string) $usuario['email'];
+// Gera o token JWT que o front-end enviará nas próximas requisições.
+$jwt = gerarJwt($usuario);
 
 responder([
     'sucesso' => true,
     'mensagem' => 'Login realizado com sucesso.',
-    'usuario' => [
-        'id' => (int) $usuario['id'],
-        'nome' => (string) $usuario['nome'],
-        'email' => (string) $usuario['email'],
-    ],
+    'token' => $jwt['token'],
+    'tipo' => 'Bearer',
+    'expira_em' => $jwt['expira_em'],
+    'usuario' => $usuario,
 ]);

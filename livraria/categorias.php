@@ -17,7 +17,7 @@ require __DIR__ . '/includes/header.php';
 
 <div class="card">
     <div class="table-responsive">
-        <table class="table align-middle mb-0">
+        <table class="table table-hover align-middle mb-0">
             <thead>
                 <tr>
                     <th>Nome</th>

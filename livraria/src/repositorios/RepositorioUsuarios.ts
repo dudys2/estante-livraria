@@ -1,5 +1,6 @@
 import { Usuario } from '../entidades/Usuario.js';
 import { requisitar } from '../nucleo/api.js';
+import { Sessao } from '../nucleo/sessao.js';
 import type { RespostaLogin, RespostaMensagem } from '../nucleo/tipos.js';
 
 export class RepositorioUsuarios {
@@ -16,6 +17,8 @@ export class RepositorioUsuarios {
 
     async autenticar(email: string, senha: string): Promise<Usuario> {
         const resposta = await requisitar<RespostaLogin>('api/login.php', 'POST', { email, senha });
+
+        Sessao.salvar(resposta.token);
 
         return new Usuario({ id: resposta.usuario.id, nome: resposta.usuario.nome, email: resposta.usuario.email });
     }

@@ -1,15 +1,15 @@
 :root {
-    --azul: #2a5d9f;
-    --azul-escuro: #1f4a80;
-    --azul-claro: #e8eff8;
-    --cinza-texto: #667085;
-    --cinza-borda: #e2e6ec;
-    --cinza-fundo: #eef1f5;
+    --verde: #2f6f5e;
+    --verde-escuro: #245648;
+    --verde-claro: #e6f0ec;
+    --cinza-texto: #66726c;
+    --cinza-borda: #e1e6e3;
+    --cinza-fundo: #edf1ee;
     --alerta: #a63d2f;
 
-    --bs-primary: var(--azul);
-    --bs-primary-rgb: 42, 93, 159;
-    --bs-body-bg: #f4f6f9;
+    --bs-primary: var(--verde);
+    --bs-primary-rgb: 47, 111, 94;
+    --bs-body-bg: #f3f6f4;
     --bs-body-color: #1b2433;
     --bs-border-color: var(--cinza-borda);
     --bs-body-font-family: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -22,7 +22,7 @@
 }
 
 .marca {
-    color: var(--azul);
+    color: var(--verde);
     font-weight: 600;
     letter-spacing: -0.01em;
 }
@@ -34,12 +34,12 @@
 }
 
 .barra .nav-link:hover {
-    color: var(--azul);
+    color: var(--verde);
 }
 
 .barra .nav-link.active {
-    color: var(--azul);
-    background: var(--azul-claro);
+    color: var(--verde);
+    background: var(--verde-claro);
     font-weight: 500;
 }
 
@@ -96,23 +96,23 @@
 }
 
 .btn-primary {
-    --bs-btn-bg: var(--azul);
-    --bs-btn-border-color: var(--azul);
-    --bs-btn-hover-bg: var(--azul-escuro);
-    --bs-btn-hover-border-color: var(--azul-escuro);
-    --bs-btn-active-bg: #183a66;
-    --bs-btn-active-border-color: #183a66;
-    --bs-btn-disabled-bg: var(--azul);
-    --bs-btn-disabled-border-color: var(--azul);
+    --bs-btn-bg: var(--verde);
+    --bs-btn-border-color: var(--verde);
+    --bs-btn-hover-bg: var(--verde-escuro);
+    --bs-btn-hover-border-color: var(--verde-escuro);
+    --bs-btn-active-bg: #1c4538;
+    --bs-btn-active-border-color: #1c4538;
+    --bs-btn-disabled-bg: var(--verde);
+    --bs-btn-disabled-border-color: var(--verde);
 }
 
 .btn-outline-primary {
-    --bs-btn-color: var(--azul);
-    --bs-btn-border-color: #c3d3e8;
-    --bs-btn-hover-bg: var(--azul);
-    --bs-btn-hover-border-color: var(--azul);
-    --bs-btn-active-bg: var(--azul-escuro);
-    --bs-btn-active-border-color: var(--azul-escuro);
+    --bs-btn-color: var(--verde);
+    --bs-btn-border-color: #bfd6cd;
+    --bs-btn-hover-bg: var(--verde);
+    --bs-btn-hover-border-color: var(--verde);
+    --bs-btn-active-bg: var(--verde-escuro);
+    --bs-btn-active-border-color: var(--verde-escuro);
 }
 
 .btn-outline-secondary {
@@ -138,13 +138,13 @@
 
 .form-control:focus,
 .form-select:focus {
-    border-color: var(--azul);
-    box-shadow: 0 0 0 0.2rem rgba(42, 93, 159, 0.15);
+    border-color: var(--verde);
+    box-shadow: 0 0 0 0.2rem rgba(47, 111, 94, 0.15);
 }
 
 .table {
     --bs-table-bg: transparent;
-    --bs-table-hover-bg: #f8f9fb;
+    --bs-table-hover-bg: #eef5f1;
 }
 
 .table thead th {
@@ -187,13 +187,13 @@
 }
 
 .selo-normal {
-    background: var(--azul-claro);
-    color: var(--azul-escuro);
+    background: var(--verde-claro);
+    color: var(--verde-escuro);
 }
 
 .selo-baixo {
-    background: var(--cinza-fundo);
-    color: #475467;
+    background: #f6ecd9;
+    color: #8a5a12;
 }
 
 .selo-critico {
@@ -221,7 +221,7 @@
 
 .barra-preenchimento {
     height: 100%;
-    background: var(--azul);
+    background: var(--verde);
     border-radius: 3px;
 }
 
@@ -249,12 +249,12 @@
 }
 
 .pagination {
-    --bs-pagination-color: var(--azul);
-    --bs-pagination-hover-color: var(--azul-escuro);
-    --bs-pagination-hover-bg: var(--azul-claro);
-    --bs-pagination-active-bg: var(--azul);
-    --bs-pagination-active-border-color: var(--azul);
-    --bs-pagination-focus-box-shadow: 0 0 0 0.2rem rgba(42, 93, 159, 0.15);
+    --bs-pagination-color: var(--verde);
+    --bs-pagination-hover-color: var(--verde-escuro);
+    --bs-pagination-hover-bg: var(--verde-claro);
+    --bs-pagination-active-bg: var(--verde);
+    --bs-pagination-active-border-color: var(--verde);
+    --bs-pagination-focus-box-shadow: 0 0 0 0.2rem rgba(47, 111, 94, 0.15);
     --bs-pagination-border-color: var(--cinza-borda);
 }
 
@@ -273,6 +273,101 @@
 
 @media (prefers-reduced-motion: reduce) {
     .fade {
+        transition: none;
+    }
+}
+
+body {
+    background-image: linear-gradient(180deg, #e6efea 0, var(--bs-body-bg) 300px);
+    background-repeat: no-repeat;
+    min-height: 100vh;
+}
+
+.marca svg {
+    color: var(--verde);
+}
+
+.icone-indicador {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--verde-claro);
+    color: var(--verde);
+}
+
+.indicador {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.indicador:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(31, 74, 61, 0.09);
+}
+
+.btn {
+    transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.btn-primary:hover {
+    box-shadow: 0 4px 12px rgba(47, 111, 94, 0.28);
+}
+
+@keyframes surgir {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes crescer {
+    from {
+        transform: scaleX(0);
+    }
+    to {
+        transform: scaleX(1);
+    }
+}
+
+main > *:not(.modal) {
+    animation: surgir 0.45s ease both;
+}
+
+main > *:not(.modal):nth-child(2) {
+    animation-delay: 0.05s;
+}
+
+main > *:not(.modal):nth-child(3) {
+    animation-delay: 0.1s;
+}
+
+main > *:not(.modal):nth-child(4) {
+    animation-delay: 0.15s;
+}
+
+main > *:not(.modal):nth-child(5) {
+    animation-delay: 0.2s;
+}
+
+.barra-preenchimento {
+    transform-origin: left;
+    animation: crescer 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    main > *:not(.modal),
+    .barra-preenchimento {
+        animation: none;
+    }
+
+    .indicador,
+    .btn {
         transition: none;
     }
 }

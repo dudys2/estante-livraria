@@ -159,4 +159,5 @@ function paginar(array $linhas, int $pagina, int $porPagina): array
     return ['dados' => $dados, 'total' => $total, 'pagina' => $pagina, 'por_pagina' => $porPagina];
 }
 
+require_once __DIR__ . '/jwt.php';
 require_once __DIR__ . '/consultas.php';

@@ -60,5 +60,8 @@ export interface UsuarioDto {
 }
 
 export interface RespostaLogin extends RespostaMensagem {
+    token: string;
+    tipo: string;
+    expira_em: number;
     usuario: UsuarioDto;
 }
