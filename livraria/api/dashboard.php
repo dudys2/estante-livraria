@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 require __DIR__ . '/bootstrap.php';
 
+exigirAutenticacao();
+
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     falhar('Método não permitido.', 405);
 }

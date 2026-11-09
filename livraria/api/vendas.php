@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 require __DIR__ . '/bootstrap.php';
 
+exigirAutenticacao();
+
 function validar(array $dados): array
 {
     $produtoId = filter_var($dados['produto_id'] ?? null, FILTER_VALIDATE_INT);

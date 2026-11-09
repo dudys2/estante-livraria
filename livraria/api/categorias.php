@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 require __DIR__ . '/bootstrap.php';
 
+exigirAutenticacao();
+
 function validarNome(array $dados, int $ignorarId = 0): string
 {
     $nome = trim((string) ($dados['nome'] ?? ''));
