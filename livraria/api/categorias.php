@@ -59,7 +59,10 @@ function excluir(): void
 }
 
 match ($_SERVER['REQUEST_METHOD']) {
-    'GET' => responder(['dados' => listarCategorias()]),
+    // Com ?pagina= a listagem é paginada; sem ele devolve todas (usado nos selects).
+    'GET' => isset($_GET['pagina'])
+        ? responder(listarCategoriasPaginadas(...parametrosPaginacao()))
+        : responder(['dados' => listarCategorias()]),
     'POST' => criar(),
     'PUT' => editar(),
     'DELETE' => excluir(),

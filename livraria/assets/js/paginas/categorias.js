@@ -1,15 +1,18 @@
 import { Categoria } from '../entidades/Categoria.js';
 import { obter } from '../nucleo/dom.js';
 import { escapar } from '../nucleo/formatadores.js';
-import { abrirModal, botoesAcao, confirmar, delegarAcoes, fecharModal, linhaVazia, mostrarAviso, tratarErro, } from '../nucleo/ui.js';
+import { abrirModal, botoesAcao, confirmar, delegarAcoes, fecharModal, linhaVazia, mostrarAviso, renderizarPaginacao, tratarErro, } from '../nucleo/ui.js';
 import { RepositorioCategorias } from '../repositorios/RepositorioCategorias.js';
+const POR_PAGINA = 8;
 const repositorio = new RepositorioCategorias();
 const corpoTabela = obter('tabela', HTMLTableSectionElement);
+const navegacao = obter('paginacao', HTMLElement);
 const formulario = obter('formulario', HTMLFormElement);
 const campoId = obter('campoId', HTMLInputElement);
 const campoNome = obter('campoNome', HTMLInputElement);
 const tituloModal = obter('tituloModal', HTMLElement);
 const botaoNovo = obter('botaoNovo', HTMLButtonElement);
+let pagina = 1;
 let categorias = [];
 function linhaCategoria(categoria) {
     return `<tr>
@@ -18,7 +21,7 @@ function linhaCategoria(categoria) {
         <td class="text-end acoes">${botoesAcao(categoria.id)}</td>
     </tr>`;
 }
-function renderizar() {
+function renderizar(total) {
     if (!corpoTabela) {
         return;
     }
@@ -26,11 +29,23 @@ function renderizar() {
         categorias.length === 0
             ? linhaVazia(3, 'Nenhuma categoria cadastrada.')
             : categorias.map(linhaCategoria).join('');
+    if (navegacao) {
+        renderizarPaginacao(navegacao, pagina, total, POR_PAGINA, (destino) => {
+            pagina = destino;
+            void carregar();
+        });
+    }
 }
 async function carregar() {
     try {
-        categorias = await repositorio.listar();
-        renderizar();
+        const resultado = await repositorio.listarPaginado(pagina, POR_PAGINA);
+        if (resultado.itens.length === 0 && pagina > 1) {
+            pagina -= 1;
+            await carregar();
+            return;
+        }
+        categorias = resultado.itens;
+        renderizar(resultado.total);
     }
     catch (erro) {
         tratarErro(erro);

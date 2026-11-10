@@ -6,6 +6,12 @@ export interface CategoriaDto {
     total_livros: number;
 }
 
+export interface AutorDto {
+    id: number;
+    nome: string;
+    total_livros: number;
+}
+
 export interface ProdutoDto {
     id: number;
     titulo: string;
@@ -29,6 +35,10 @@ export interface VendaDto {
     quantidade: number;
     valor_unitario: number;
     total: number;
+}
+
+export interface RespostaItem<T> {
+    dados: T;
 }
 
 export interface RespostaLista<T> {
@@ -57,6 +67,13 @@ export interface UsuarioDto {
     id: number;
     nome: string;
     email: string;
+    cpf?: string;
+}
+
+export interface RespostaUsuario {
+    sucesso: boolean;
+    mensagem?: string;
+    usuario: UsuarioDto;
 }
 
 export interface RespostaLogin extends RespostaMensagem {

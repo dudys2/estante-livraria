@@ -1,6 +1,6 @@
 import type { Entidade } from '../entidades/Entidade.js';
 import { requisitar } from '../nucleo/api.js';
-import type { RespostaLista, RespostaMensagem, RespostaPaginada } from '../nucleo/tipos.js';
+import type { RespostaItem, RespostaLista, RespostaMensagem, RespostaPaginada } from '../nucleo/tipos.js';
 
 export interface Pagina<T> {
     itens: T[];
@@ -28,6 +28,11 @@ export abstract class Repositorio<T extends Entidade, TDto, TCorpo extends objec
         const resposta = await requisitar<RespostaPaginada<TDto>>(`${this.#endpoint}?${parametros}`);
 
         return { itens: resposta.dados.map((dto) => this.paraEntidade(dto)), total: resposta.total };
+    }
+
+    protected async obterPorId(id: number): Promise<T> {
+        const resposta = await requisitar<RespostaItem<TDto>>(`${this.#endpoint}?id=${id}`);
+        return this.paraEntidade(resposta.dados);
     }
 
     async salvar(entidade: T): Promise<string> {

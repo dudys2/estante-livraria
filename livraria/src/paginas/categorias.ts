@@ -9,19 +9,24 @@ import {
     fecharModal,
     linhaVazia,
     mostrarAviso,
+    renderizarPaginacao,
     tratarErro,
 } from '../nucleo/ui.js';
 import { RepositorioCategorias } from '../repositorios/RepositorioCategorias.js';
 
+const POR_PAGINA = 8;
+
 const repositorio = new RepositorioCategorias();
 
 const corpoTabela = obter('tabela', HTMLTableSectionElement);
+const navegacao = obter('paginacao', HTMLElement);
 const formulario = obter('formulario', HTMLFormElement);
 const campoId = obter('campoId', HTMLInputElement);
 const campoNome = obter('campoNome', HTMLInputElement);
 const tituloModal = obter('tituloModal', HTMLElement);
 const botaoNovo = obter('botaoNovo', HTMLButtonElement);
 
+let pagina = 1;
 let categorias: Categoria[] = [];
 
 function linhaCategoria(categoria: Categoria): string {
@@ -32,7 +37,7 @@ function linhaCategoria(categoria: Categoria): string {
     </tr>`;
 }
 
-function renderizar(): void {
+function renderizar(total: number): void {
     if (!corpoTabela) {
         return;
     }
@@ -40,12 +45,26 @@ function renderizar(): void {
         categorias.length === 0
             ? linhaVazia(3, 'Nenhuma categoria cadastrada.')
             : categorias.map(linhaCategoria).join('');
+
+    if (navegacao) {
+        renderizarPaginacao(navegacao, pagina, total, POR_PAGINA, (destino) => {
+            pagina = destino;
+            void carregar();
+        });
+    }
 }
 
 async function carregar(): Promise<void> {
     try {
-        categorias = await repositorio.listar();
-        renderizar();
+        const resultado = await repositorio.listarPaginado(pagina, POR_PAGINA);
+
+        if (resultado.itens.length === 0 && pagina > 1) {
+            pagina -= 1;
+            await carregar();
+            return;
+        }
+        categorias = resultado.itens;
+        renderizar(resultado.total);
     } catch (erro) {
         tratarErro(erro);
     }

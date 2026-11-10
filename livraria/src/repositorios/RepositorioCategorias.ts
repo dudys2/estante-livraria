@@ -1,6 +1,6 @@
 import { Categoria } from '../entidades/Categoria.js';
 import type { CategoriaDto } from '../nucleo/tipos.js';
-import { Repositorio } from './Repositorio.js';
+import { Repositorio, type Pagina } from './Repositorio.js';
 
 export class RepositorioCategorias extends Repositorio<Categoria, CategoriaDto, { nome: string }> {
     constructor() {
@@ -9,6 +9,10 @@ export class RepositorioCategorias extends Repositorio<Categoria, CategoriaDto, 
 
     listar(): Promise<Categoria[]> {
         return this.listarTodos();
+    }
+
+    listarPaginado(pagina: number, porPagina: number): Promise<Pagina<Categoria>> {
+        return this.listarPagina({ pagina: String(pagina), por_pagina: String(porPagina) });
     }
 
     protected paraEntidade(dto: CategoriaDto): Categoria {

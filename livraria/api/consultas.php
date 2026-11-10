@@ -37,3 +37,22 @@ function listarCategorias(): array
         ['id', 'total_livros']
     );
 }
+
+
+function listarCategoriasPaginadas(int $pagina, int $porPagina): array
+{
+    $deslocamento = ($pagina - 1) * $porPagina;
+
+    $linhas = consultar(
+        "SELECT c.id, c.nome, COUNT(p.id) AS total_livros, COUNT(*) OVER () AS total_registros
+         FROM categorias c
+         LEFT JOIN produtos p ON p.categoria_id = c.id
+         GROUP BY c.id, c.nome
+         ORDER BY c.nome
+         LIMIT {$porPagina} OFFSET {$deslocamento}",
+        [],
+        ['id', 'total_livros', 'total_registros']
+    );
+
+    return paginar($linhas, $pagina, $porPagina);
+}

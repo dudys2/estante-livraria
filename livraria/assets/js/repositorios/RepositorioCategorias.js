@@ -7,6 +7,9 @@ export class RepositorioCategorias extends Repositorio {
     listar() {
         return this.listarTodos();
     }
+    listarPaginado(pagina, porPagina) {
+        return this.listarPagina({ pagina: String(pagina), por_pagina: String(porPagina) });
+    }
     paraEntidade(dto) {
         return Categoria.deApi(dto);
     }

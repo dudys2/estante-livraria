@@ -29,6 +29,7 @@ require __DIR__ . '/includes/header.php';
         </table>
     </div>
 </div>
+<nav class="mt-3" id="paginacao" aria-label="Paginação"></nav>
 
 <div class="modal fade" id="modalFormulario" tabindex="-1" aria-labelledby="tituloModal" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">

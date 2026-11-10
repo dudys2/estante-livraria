@@ -5,12 +5,14 @@ $titulo ??= 'Estante';
 $ativo ??= '';
 
 $menu = [
-    'painel' => ['index.php', 'Painel'],
-    'vendas' => ['vendas.php', 'Vendas'],
-    'livros' => ['produtos.php', 'Livros'],
-    'categorias' => ['categorias.php', 'Categorias'],
-    'cadastro' => ['cadastro.php', 'Cadastro'],
-    'login' => ['login.php', 'Login'],
+    'painel' => ['index.php', 'Painel', 'todos'],
+    'vendas' => ['vendas.php', 'Vendas', 'todos'],
+    'livros' => ['produtos.php', 'Livros', 'todos'],
+    'categorias' => ['categorias.php', 'Categorias', 'todos'],
+    'autores' => ['autores.php', 'Autores', 'todos'],
+    'perfil' => ['perfil.php', 'Meu perfil', 'logado'],
+    'cadastro' => ['cadastro.php', 'Cadastro', 'visitante'],
+    'login' => ['login.php', 'Login', 'visitante'],
 ];
 ?>
 <!DOCTYPE html>
@@ -37,13 +39,19 @@ $menu = [
             </button>
             <div class="collapse navbar-collapse" id="menuPrincipal">
                 <ul class="navbar-nav ms-md-4 gap-md-1">
-                    <?php foreach ($menu as $chave => [$arquivo, $rotulo]): ?>
-                        <li class="nav-item">
+                    <?php foreach ($menu as $chave => [$arquivo, $rotulo, $visivel]): ?>
+                        <li class="nav-item"<?= $visivel !== 'todos' ? ' data-visivel="' . $visivel . '" hidden' : '' ?>>
                             <a class="nav-link<?= $chave === $ativo ? ' active' : '' ?>"
                                href="<?= $arquivo ?>"<?= $chave === $ativo ? ' aria-current="page"' : '' ?>><?= $rotulo ?></a>
                         </li>
                     <?php endforeach; ?>
                 </ul>
+                <div class="ms-md-auto" data-visivel="logado" hidden>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="navbar-text" id="nomeUsuario"></span>
+                        <button type="button" class="btn btn-sm btn-light" id="botaoSair">Sair</button>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>

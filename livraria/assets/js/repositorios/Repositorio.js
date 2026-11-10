@@ -13,6 +13,10 @@ export class Repositorio {
         const resposta = await requisitar(`${this.#endpoint}?${parametros}`);
         return { itens: resposta.dados.map((dto) => this.paraEntidade(dto)), total: resposta.total };
     }
+    async obterPorId(id) {
+        const resposta = await requisitar(`${this.#endpoint}?id=${id}`);
+        return this.paraEntidade(resposta.dados);
+    }
     async salvar(entidade) {
         const url = entidade.persistida ? `${this.#endpoint}?id=${entidade.id}` : this.#endpoint;
         const resposta = await requisitar(url, entidade.persistida ? 'PUT' : 'POST', this.paraCorpo(entidade));
