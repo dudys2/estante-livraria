@@ -36,7 +36,7 @@ export async function requisitar<T>(url: string, metodo: Metodo = 'GET', corpo?:
             body: corpo === undefined ? undefined : JSON.stringify(corpo),
         });
     } catch {
-        throw new ErroApi('Não foi possível conectar ao servidor. Verifique se o Apache e o MariaDB estão em execução.');
+        throw new ErroApi('Não foi possível conectar ao servidor. Tente novamente em instantes.');
     }
 
     const conteudo: unknown = await resposta.json().catch(() => null);

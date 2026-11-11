@@ -14,6 +14,7 @@ interface LinhaBarra {
 
 const repositorio = new RepositorioDashboard();
 
+const formularioFiltros = obter('filtros', HTMLFormElement);
 const filtroCategoria = obter('filtroCategoria', HTMLSelectElement);
 const filtroInicio = obter('filtroInicio', HTMLInputElement);
 const filtroFim = obter('filtroFim', HTMLInputElement);
@@ -150,5 +151,10 @@ async function iniciar(): Promise<void> {
 
 [filtroCategoria, filtroInicio, filtroFim].forEach((campo) => campo?.addEventListener('change', renderizar));
 botaoLimpar?.addEventListener('click', limparFiltros);
+
+// Impede o envio do formulário de filtros (os filtros já atualizam o painel ao mudar).
+formularioFiltros?.addEventListener('submit', (evento) => {
+    evento.preventDefault();
+});
 
 void iniciar();

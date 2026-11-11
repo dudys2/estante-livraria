@@ -12,7 +12,7 @@ require __DIR__ . '/includes/header.php';
         <h1 class="titulo-pagina">Painel</h1>
         <p class="subtitulo mb-0">Vendas e estoque da livraria.</p>
     </div>
-    <form class="row g-2 align-items-end" id="filtros" onsubmit="return false">
+    <form class="row g-2 align-items-end" id="filtros">
         <div class="col-12 col-sm-auto">
             <label class="form-label rotulo" for="filtroCategoria">Categoria</label>
             <select class="form-select form-select-sm" id="filtroCategoria">
