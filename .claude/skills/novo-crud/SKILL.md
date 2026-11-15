@@ -1,6 +1,6 @@
 ---
 name: novo-crud
-description: Cria um CRUD completo no Estante (API em PHP, entidade e repositório em TypeScript e telas separadas de listagem e formulário). Use quando pedirem um novo cadastro ou recurso.
+description: Cria um CRUD completo no Estante (API em PHP, entidade e repositório em TypeScript e telas React separadas de listagem e formulário). Use quando pedirem um novo cadastro ou recurso.
 ---
 
 # Novo CRUD
@@ -12,13 +12,13 @@ Use o CRUD de **autores** como modelo. Ele está completo e segue todas as regra
 2. **Tipos** em `src/nucleo/tipos.ts`: adicione o DTO do recurso (campos em `snake_case`, como a API devolve).
 3. **Entidade** `src/entidades/<Recurso>.ts`: estenda `Entidade`, use campos `#privados` e valide nos setters (modelo: `Autor.ts`). Inclua `deApi()` e `paraApi()`.
 4. **Repositório** `src/repositorios/Repositorio<Recurso>.ts`: estenda `Repositorio<T, TDto, TCorpo>` (modelo: `RepositorioAutores.ts`).
-5. **Telas separadas**, sem modal:
-   - `<recurso>.php` e `src/paginas/<recurso>.ts`: listagem com busca e paginação (modelo: `autores.php`).
-   - `<recurso>-form.php` e `src/paginas/<recurso>-form.ts`: cadastro e edição por `?id=` (modelo: `autor-form.php`).
-6. **Menu**: adicione o item em `includes/header.php`.
-7. Rode `npm run build` em `livraria/` e `php -l` na API e nas páginas novas.
+5. **Telas React separadas**, sem modal:
+   - `livraria/frontend/src/paginas/<Recurso>.tsx`: listagem com busca e paginação (modelo: `Autores.tsx`, que usa o hook `useListaPaginada`).
+   - `livraria/frontend/src/paginas/<Recurso>Form.tsx`: cadastro e edição pela rota com `:id` (modelo: `AutorForm.tsx`).
+6. **Rotas e menu**: registre as rotas em `frontend/src/App.tsx` e adicione o item em `MENU`, em `frontend/src/componentes/Layout.tsx`.
+7. Rode `npm run build` em `livraria/frontend` e `php -l` na API nova.
 
 ## Cuidados
 - Nunca use `any`.
-- Nunca edite `assets/js/` à mão: ele é gerado pelo build.
+- Regras de negócio e chamadas à API ficam em `src/` (entidade e repositório); o componente só usa essas classes.
 - Liste no fim os arquivos criados e alterados.

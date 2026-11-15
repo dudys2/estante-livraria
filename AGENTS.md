@@ -5,19 +5,21 @@ Projeto acadêmico: o código precisa ser simples de explicar numa defesa técni
 
 ## Estrutura
 - `livraria/api/`: back-end em PHP 8 (uma rota por arquivo, PDO, JWT HS256).
-- `livraria/src/`: front-end em **TypeScript**. Compila para `livraria/assets/js/` (esse JS é gerado, nunca edite à mão).
-- `livraria/*.php`: páginas que só montam o HTML e carregam um script de `assets/js/paginas/`.
+- `livraria/frontend/`: front-end em **React + TypeScript** (Vite). Telas em `src/paginas/`, componentes reutilizáveis em `src/componentes/`, estado compartilhado em `src/contexto/`, hooks em `src/hooks/` e rotas em `src/App.tsx` (HashRouter).
+- `livraria/src/`: camadas de negócio do front, em TypeScript puro e sem React. O React as importa pelo alias `@src`. Contém `entidades/` (regras e validação), `repositorios/` (chamadas à API), `servicos/`, `nucleo/` (api, sessão, validadores, formatadores, tipos), `erros/` e `contexto/` (usuário logado).
+- `livraria/assets/css/estilo.css`: estilo da aplicação, importado pelo React.
 - `livraria/database/`: scripts SQL do banco `biblioteca`.
 
-Camadas do front: `entidades/` (regras e validação), `repositorios/` (chamadas à API), `paginas/` (telas), `nucleo/` (utilitários), `erros/`, `contexto/` (usuário logado).
-
 ## Comandos
-- Compilar o front: `cd livraria && npm run build` (rode depois de editar qualquer `.ts`).
+- Desenvolvimento: `cd livraria && php -S localhost:8000` (API) e, em outro terminal, `cd livraria/frontend && npm run dev` (abre em `http://localhost:5173`).
+- Checar tipos e compilar o front: `cd livraria/frontend && npm run build` (rode depois de editar qualquer `.ts` ou `.tsx`).
 - Checar PHP: `php -l arquivo.php`.
 
 ## Regras do código
 - Entidades estendem `Entidade`, usam campos `#privados` e validam nos setters.
 - Repositórios estendem `Repositorio<T, TDto, TCorpo>`; erros usam as classes de `src/erros/`.
+- Regra de negócio e chamada à API ficam em `livraria/src/` (entidades e repositórios), nunca dentro de componentes React.
+- Componentes React são funções com hooks. Cada tela fica em `frontend/src/paginas/`, e o que se repete vira componente em `frontend/src/componentes/`.
 - Proibido `any` no TypeScript. Use interfaces, type aliases e generics.
 - Toda rota de `api/` chama `exigirAutenticacao()`, exceto `login.php` e o `POST` de cadastro em `usuarios.php`.
 - Listagens são paginadas (`parametrosPaginacao()` e `paginar()`).
@@ -31,9 +33,9 @@ Camadas do front: `entidades/` (regras e validação), `repositorios/` (chamadas
 - Não mexa nos objetos SQL de empréstimos (`emprestimos`, `fn_dias_atraso`, triggers e views da biblioteca): eles pertencem a outra disciplina.
 - Não instale dependências novas sem avisar.
 - Faça só o que foi pedido. Se faltar informação, pergunte antes de supor.
-- Antes de dizer que terminou: build sem erros, `php -l` nos arquivos PHP alterados e nada de segredo no diff.
+- Antes de dizer que terminou: `npm run build` sem erros em `livraria/frontend`, `php -l` nos arquivos PHP alterados e nada de segredo no diff.
 
 ## Skills do projeto (`.claude/skills/`)
-- `novo-crud`: cria um CRUD completo (API, entidade, repositório e telas separadas).
+- `novo-crud`: cria um CRUD completo (API, entidade, repositório e telas React separadas).
 - `rota-autenticada`: cria ou ajusta uma rota da API com autenticação e validação.
 - `revisar-entrega`: checklist final antes de enviar o projeto.
