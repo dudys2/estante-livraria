@@ -15,6 +15,10 @@ export class RepositorioCategorias extends Repositorio<Categoria, CategoriaDto, 
         return this.listarPagina({ pagina: String(pagina), por_pagina: String(porPagina) });
     }
 
+    buscar(id: number): Promise<Categoria> {
+        return this.obterPorId(id);
+    }
+
     protected paraEntidade(dto: CategoriaDto): Categoria {
         return Categoria.deApi(dto);
     }

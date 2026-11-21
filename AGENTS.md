@@ -9,11 +9,13 @@ Projeto acadêmico: o código precisa ser simples de explicar numa defesa técni
 - `livraria/src/`: camadas de negócio do front, em TypeScript puro e sem React. O React as importa pelo alias `@src`. Contém `entidades/` (regras e validação), `repositorios/` (chamadas à API), `servicos/`, `nucleo/` (api, sessão, validadores, formatadores, tipos), `erros/` e `contexto/` (usuário logado).
 - `livraria/assets/css/estilo.css`: estilo da aplicação, importado pelo React.
 - `livraria/database/`: scripts SQL do banco `biblioteca`.
+- `docker-compose.yml` e `docker/`: gateway Nginx (único com porta publicada), front-end, back-end e MySQL com volume. Não exponha portas dos outros serviços.
 
 ## Comandos
 - Desenvolvimento: `cd livraria && php -S localhost:8000` (API) e, em outro terminal, `cd livraria/frontend && npm run dev` (abre em `http://localhost:5173`).
 - Checar tipos e compilar o front: `cd livraria/frontend && npm run build` (rode depois de editar qualquer `.ts` ou `.tsx`).
 - Checar PHP: `php -l arquivo.php`.
+- Subir tudo com Docker (raiz do projeto): `docker compose up --build`. Precisa de um `.env` criado a partir do `.env.example`.
 
 ## Regras do código
 - Entidades estendem `Entidade`, usam campos `#privados` e validam nos setters.

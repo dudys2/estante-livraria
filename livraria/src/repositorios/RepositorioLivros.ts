@@ -23,6 +23,10 @@ export class RepositorioLivros extends Repositorio<Livro, ProdutoDto, CorpoLivro
         });
     }
 
+    buscar(id: number): Promise<Livro> {
+        return this.obterPorId(id);
+    }
+
     protected paraEntidade(dto: ProdutoDto): Livro {
         return Livro.deApi(dto);
     }

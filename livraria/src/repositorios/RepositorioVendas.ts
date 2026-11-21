@@ -27,6 +27,10 @@ export class RepositorioVendas extends Repositorio<Venda, VendaDto, CorpoVenda> 
         });
     }
 
+    buscar(id: number): Promise<Venda> {
+        return this.obterPorId(id);
+    }
+
     protected paraEntidade(dto: VendaDto): Venda {
         return Venda.deApi(dto);
     }

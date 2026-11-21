@@ -90,6 +90,23 @@ function listar(): void
     ));
 }
 
+function buscar(): void
+{
+    $linhas = consultar(
+        'SELECT venda_id, data_venda, produto_id, produto, categoria_id, categoria, quantidade, valor_unitario, total
+         FROM vw_vendas_consolidadas WHERE venda_id = ?',
+        [idDaRequisicao()],
+        ['venda_id', 'produto_id', 'categoria_id', 'quantidade'],
+        ['valor_unitario', 'total']
+    );
+
+    if ($linhas === []) {
+        falhar('Venda não encontrada.', 404);
+    }
+
+    responder(['dados' => $linhas[0]]);
+}
+
 function criar(): void
 {
     [$produtoId, $quantidade, $data] = validar(entrada());
@@ -140,7 +157,7 @@ function excluir(): void
 }
 
 match ($_SERVER['REQUEST_METHOD']) {
-    'GET' => listar(),
+    'GET' => isset($_GET['id']) ? buscar() : listar(),
     'POST' => criar(),
     'PUT' => editar(),
     'DELETE' => excluir(),

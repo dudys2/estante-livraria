@@ -1,9 +1,8 @@
-import { useCallback, useState, type FormEvent } from 'react';
-import { Categoria } from '@src/entidades/Categoria';
+import { useCallback, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import type { Categoria } from '@src/entidades/Categoria';
 import { RepositorioCategorias } from '@src/repositorios/RepositorioCategorias';
 import { AcoesLinha } from '../componentes/AcoesLinha';
-import { Campo } from '../componentes/Campo';
-import { Modal } from '../componentes/Modal';
 import { ModalConfirmacao } from '../componentes/ModalConfirmacao';
 import { Paginacao } from '../componentes/Paginacao';
 import { useAvisos } from '../contexto/AvisosContexto';
@@ -14,49 +13,15 @@ const POR_PAGINA = 8;
 
 const repositorio = new RepositorioCategorias();
 
-interface FormularioCategoria {
-    id: number;
-    nome: string;
-}
-
 export function Categorias() {
     useTitulo('Categorias');
 
+    const navegar = useNavigate();
     const { mostrar, tratarErro } = useAvisos();
-    const [formulario, setFormulario] = useState<FormularioCategoria | null>(null);
-    const [validado, setValidado] = useState(false);
     const [paraExcluir, setParaExcluir] = useState<Categoria | null>(null);
 
     const listar = useCallback((pagina: number) => repositorio.listarPaginado(pagina, POR_PAGINA), []);
     const { itens: categorias, total, carregado, pagina, irParaPagina, recarregar } = useListaPaginada(listar);
-
-    function abrirFormulario(categoria?: Categoria): void {
-        setValidado(false);
-        setFormulario({ id: categoria ? categoria.id : 0, nome: categoria ? categoria.nome : '' });
-    }
-
-    async function salvar(evento: FormEvent<HTMLFormElement>): Promise<void> {
-        evento.preventDefault();
-
-        if (formulario === null) {
-            return;
-        }
-        if (!evento.currentTarget.checkValidity()) {
-            setValidado(true);
-            return;
-        }
-
-        try {
-            const categoria = new Categoria({ id: formulario.id, nome: formulario.nome });
-            const mensagem = await repositorio.salvar(categoria);
-
-            setFormulario(null);
-            mostrar(mensagem);
-            await recarregar();
-        } catch (erro) {
-            tratarErro(erro);
-        }
-    }
 
     async function excluir(categoria: Categoria): Promise<void> {
         setParaExcluir(null);
@@ -76,9 +41,9 @@ export function Categorias() {
                     <h1 className="titulo-pagina">Categorias</h1>
                     <p className="subtitulo mb-0">Organize os livros por assunto.</p>
                 </div>
-                <button type="button" className="btn btn-primary" onClick={() => abrirFormulario()}>
+                <Link className="btn btn-primary" to="/categorias/novo">
                     Nova categoria
-                </button>
+                </Link>
             </div>
 
             <div className="card">
@@ -103,7 +68,7 @@ export function Categorias() {
                                 <tr key={categoria.id}>
                                     <td className="fw-medium">{categoria.nome}</td>
                                     <td className="text-center">{categoria.totalLivros}</td>
-                                    <AcoesLinha aoEditar={() => abrirFormulario(categoria)} aoExcluir={() => setParaExcluir(categoria)} />
+                                    <AcoesLinha aoEditar={() => navegar(`/categorias/${categoria.id}/editar`)} aoExcluir={() => setParaExcluir(categoria)} />
                                 </tr>
                             ))}
                         </tbody>
@@ -111,41 +76,6 @@ export function Categorias() {
                 </div>
             </div>
             <Paginacao pagina={pagina} total={total} porPagina={POR_PAGINA} aoMudar={irParaPagina} />
-
-            {formulario && (
-                <Modal aoFechar={() => setFormulario(null)}>
-                    <form
-                        className={`modal-content${validado ? ' was-validated' : ''}`}
-                        noValidate
-                        onSubmit={(evento) => void salvar(evento)}
-                    >
-                        <div className="modal-header border-0">
-                            <h2 className="modal-title fs-5">{formulario.id > 0 ? 'Editar categoria' : 'Nova categoria'}</h2>
-                            <button type="button" className="btn-close" aria-label="Fechar" onClick={() => setFormulario(null)} />
-                        </div>
-                        <div className="modal-body">
-                            <Campo
-                                id="campoNome"
-                                rotulo="Nome"
-                                maxLength={60}
-                                required
-                                classeGrupo=""
-                                value={formulario.nome}
-                                mensagem="Informe o nome da categoria."
-                                onChange={(evento) => setFormulario({ ...formulario, nome: evento.target.value })}
-                            />
-                        </div>
-                        <div className="modal-footer border-0">
-                            <button type="button" className="btn btn-light" onClick={() => setFormulario(null)}>
-                                Cancelar
-                            </button>
-                            <button type="submit" className="btn btn-primary">
-                                Salvar
-                            </button>
-                        </div>
-                    </form>
-                </Modal>
-            )}
 
             {paraExcluir && (
                 <ModalConfirmacao

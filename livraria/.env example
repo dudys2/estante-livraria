@@ -1,2 +1,5 @@
 
 JWT_SECRET=sequencia-aleatoria-com-64-caracteres
+DB_ROOT_SENHA=
+DB_SENHA=
+PORTA_WEB=

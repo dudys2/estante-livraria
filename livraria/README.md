@@ -22,8 +22,19 @@ Ela controla estoque e vendas em planilhas e perde tempo para saber quais livros
 - Front-end: React, TypeScript (Vite) e Bootstrap
 - Back-end: PHP 8, PDO e JWT (HS256)
 - Banco de dados: MySQL/MariaDB (banco `biblioteca`)
+- Infraestrutura: Docker Compose, Nginx (proxy reverso) e volume persistente do MySQL
 
-## Como executar
+## Como executar com Docker (recomendado)
+
+Na raiz do projeto (onde está o `docker-compose.yml`):
+
+1. Copie `.env.example` para `.env` e troque as senhas e o `JWT_SECRET`.
+2. Rode `docker compose up --build`.
+3. Abra `http://localhost:8080` (a porta vem de `PORTA_WEB` no `.env`), cadastre um usuário e entre.
+
+Arquitetura: o **Nginx (gateway)** é o único serviço que publica porta. Ele encaminha `/api/` para o **back-end** (PHP) e o resto para o **front-end** (React compilado, servido por outro Nginx). O back-end fala com o **MySQL 8** pela rede interna `rede_estante`. Os dados ficam no volume `dados_mysql` e os scripts de `database/` criam o banco, as tabelas e dados de exemplo na primeira subida. Para recriar o banco do zero: `docker compose down -v`.
+
+## Como executar sem Docker (XAMPP)
 
 1. Copie `.env example` para `.env` e defina um valor seguro para `JWT_SECRET`.
 2. Execute no banco os scripts de `database/`: primeiro `complementar_biblioteca.sql` e depois `usuarios_cadastro.sql`.
@@ -38,4 +49,4 @@ Para gerar a versão de produção, rode `npm run build` em `livraria/frontend`:
 - `frontend/`: aplicação React (`src/paginas`, `src/componentes`, `src/contexto`, `src/hooks`)
 - `src/`: camadas de negócio em TypeScript (`entidades`, `repositorios`, `servicos`, `nucleo`, `erros`, `contexto`), usadas pelo React
 - `assets/css/`: estilo
-- `database/`: scripts SQL
+- `database/`: scripts SQL (`usuarios_cadastro.sql` é para MariaDB/XAMPP; `usuarios_cadastro_mysql8.sql` e `dados_exemplo.sql` são usados pelo Docker)

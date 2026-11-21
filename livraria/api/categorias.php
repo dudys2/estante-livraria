@@ -19,6 +19,25 @@ function validarNome(array $dados, int $ignorarId = 0): string
     return $nome;
 }
 
+function buscar(): void
+{
+    $linhas = consultar(
+        'SELECT c.id, c.nome, COUNT(p.id) AS total_livros
+         FROM categorias c
+         LEFT JOIN produtos p ON p.categoria_id = c.id
+         WHERE c.id = ?
+         GROUP BY c.id, c.nome',
+        [idDaRequisicao()],
+        ['id', 'total_livros']
+    );
+
+    if ($linhas === []) {
+        falhar('Categoria não encontrada.', 404);
+    }
+
+    responder(['dados' => $linhas[0]]);
+}
+
 function criar(): void
 {
     $nome = validarNome(entrada());
@@ -60,9 +79,11 @@ function excluir(): void
 
 match ($_SERVER['REQUEST_METHOD']) {
     // Com ?pagina= a listagem é paginada; sem ele devolve todas (usado nos selects).
-    'GET' => isset($_GET['pagina'])
+    'GET' => isset($_GET['id'])
+        ? buscar()
+        : (isset($_GET['pagina'])
         ? responder(listarCategoriasPaginadas(...parametrosPaginacao()))
-        : responder(['dados' => listarCategorias()]),
+        : responder(['dados' => listarCategorias()])),
     'POST' => criar(),
     'PUT' => editar(),
     'DELETE' => excluir(),

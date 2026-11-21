@@ -13,6 +13,7 @@ Execute e relate o resultado de cada item. Não corrija nada sem avisar.
 4. Confirme que as rotas de `livraria/api/` (exceto `login.php` e o `POST` de cadastro) chamam `exigirAutenticacao()`.
 5. Confirme que o `.env` **não** está no que será enviado e que o `.env example` não tem segredo real. Não abra o `.env`; verifique só se o arquivo existe no pacote.
 6. Confirme que `node_modules/` e `frontend/dist/` não vão no pacote (estão no `.gitignore` de `frontend/`).
-7. Confira a rubrica: 4 CRUDs com rotas autenticadas e paginação, edição de usuário, AGENTS.md, skills, docker-compose e persona no README.
+7. Confira o Docker: `docker compose config` sem erro, só o `gateway` com `ports`, volume `dados_mysql` e `.env` fora do pacote.
+8. Confira a rubrica: 4 CRUDs com rotas autenticadas e paginação, edição de usuário, AGENTS.md, skills, docker-compose e persona no README.
 
 Termine com uma lista curta: o que passou, o que falhou e o que falta.

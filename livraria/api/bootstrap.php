@@ -3,11 +3,14 @@ declare(strict_types=1);
 
 ini_set('display_errors', '0');
 
-const DB_HOST = '127.0.0.1';
-const DB_PORTA = 3306;
-const DB_NOME = 'biblioteca';
-const DB_USUARIO = 'root';
-const DB_SENHA = '';
+require_once __DIR__ . '/env.php';
+
+// Valores padrão servem para o XAMPP; no Docker vêm das variáveis de ambiente do docker-compose.
+define('DB_HOST', valorEnv('DB_HOST') ?? '127.0.0.1');
+define('DB_PORTA', (int) (valorEnv('DB_PORTA') ?? 3306));
+define('DB_NOME', valorEnv('DB_NOME') ?? 'biblioteca');
+define('DB_USUARIO', valorEnv('DB_USUARIO') ?? 'root');
+define('DB_SENHA', valorEnv('DB_SENHA') ?? '');
 
 final class ErroDeRegra extends RuntimeException
 {

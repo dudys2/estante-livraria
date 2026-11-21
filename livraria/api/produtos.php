@@ -44,6 +44,23 @@ function listar(): void
     ));
 }
 
+function buscar(): void
+{
+    $linhas = consultar(
+        'SELECT id, titulo, autor, categoria_id, categoria, preco, estoque, status_estoque, unidades_vendidas, receita
+         FROM vw_produtos_detalhe WHERE id = ?',
+        [idDaRequisicao()],
+        ['id', 'categoria_id', 'estoque', 'unidades_vendidas'],
+        ['preco', 'receita']
+    );
+
+    if ($linhas === []) {
+        falhar('Livro não encontrado.', 404);
+    }
+
+    responder(['dados' => $linhas[0]]);
+}
+
 function criar(): void
 {
     $campos = validar(entrada());
@@ -89,7 +106,7 @@ function excluir(): void
 }
 
 match ($_SERVER['REQUEST_METHOD']) {
-    'GET' => listar(),
+    'GET' => isset($_GET['id']) ? buscar() : listar(),
     'POST' => criar(),
     'PUT' => editar(),
     'DELETE' => excluir(),
